@@ -61,10 +61,11 @@ export class DatabaseService {
     const { data: latestCloseout, error: closeoutError } = await this.#client.from('daily_closeouts').select('closed_at').order('closed_at', { ascending: false }).limit(1).maybeSingle();
     if (closeoutError) throw closeoutError;
     const startAt = latestCloseout?.closed_at ?? new Date(new Date().setHours(0, 0, 0, 0)).toISOString();
-    const { data: orders, error: orderError } = await this.#client.from('orders').select('id, created_at, total_amount, payment_method, status').eq('status', 'completed').gt('created_at', startAt).order('created_at', { ascending: false });
+    const { data: orders, error: orderError } = await this.#client.from('orders').select('id, created_at, total_amount, payment_method, status, is_flagged, flag_reason').eq('status', 'completed').gt('created_at', startAt).order('created_at', { ascending: false });
     if (orderError) throw orderError;
 
-    const orderIds = orders.map(({ id }) => id);
+    const eligibleOrders = orders.filter((order) => !order.is_flagged);
+    const orderIds = eligibleOrders.map(({ id }) => id);
     const { data: items, error: itemError } = orderIds.length
       ? await this.#client.from('order_items').select('order_id, product_id, quantity, subtotal, products(name)').in('order_id', orderIds)
       : { data: [], error: null };
@@ -78,13 +79,13 @@ export class DatabaseService {
       current.revenue += Number(item.subtotal);
       bestSellers.set(name, current);
     });
-    const paymentTotals = orders.reduce((totals, order) => {
+    const paymentTotals = eligibleOrders.reduce((totals, order) => {
       totals[order.payment_method] = (totals[order.payment_method] ?? 0) + Number(order.total_amount);
       return totals;
     }, { cash: 0, qr: 0 });
     return {
-      revenue: orders.reduce((sum, order) => sum + Number(order.total_amount), 0),
-      orderCount: orders.length,
+      revenue: eligibleOrders.reduce((sum, order) => sum + Number(order.total_amount), 0),
+      orderCount: eligibleOrders.length,
       cashRevenue: paymentTotals.cash,
       qrRevenue: paymentTotals.qr,
       recentOrders: orders.slice(0, 8),
@@ -104,5 +105,10 @@ export class DatabaseService {
     const { data, error } = await this.#client.from('daily_closeouts').select('id, closed_at, total_sales, cash_collected, qr_collected, order_count').order('closed_at', { ascending: false }).limit(30);
     if (error) throw error;
     return data;
+  }
+
+  async setOrderFlag(orderId, isFlagged) {
+    const { error } = await this.#client.from('orders').update({ is_flagged: isFlagged }).eq('id', orderId);
+    if (error) throw error;
   }
 }

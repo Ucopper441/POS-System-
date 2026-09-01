@@ -3,90 +3,43 @@
 <!doctype html>
 <html lang="en-MY">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Spud Station · Admin</title>
+    <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Spud Station · Admin</title><meta name="theme-color" content="#FDB813" />
+    <link rel="manifest" href="/site.webmanifest" /><link rel="icon" href="/spud-icon.svg" type="image/svg+xml" />
   </head>
   <body>
-<main class="admin-shell">
-  <div class="scanlines" aria-hidden="true"></div>
-  <header class="admin-header">
-    <a href="/" class="brand">SPUD<br /><span>STATION</span></a>
-    <div><small>MISSION CONTROL</small><h1>STALL COMMAND</h1></div>
-    <a href="/" class="back-link">← CASHIER POS</a>
-  </header>
-
-  <p id="notice" class="sync-status">CONNECTING TO SUPABASE…</p>
-  <section class="kpis" aria-label="Today's sales figures">
-    <article><span>DAILY REVENUE</span><strong id="daily-revenue">RM 0.00</strong></article>
-    <article><span>COMPLETED ORDERS</span><strong id="order-count">0</strong></article>
-    <article><span>AVERAGE TICKET</span><strong id="average-ticket">RM 0.00</strong></article>
-  </section>
-  <section class="closeout-bar" aria-labelledby="closeout-heading">
-    <div><small>END-OF-DAY CHECK</small><h2 id="closeout-heading">SALES CLOSEOUT</h2></div>
-    <button id="run-closeout" type="button">RUN DAILY CLOSEOUT</button>
-  </section>
-  <section id="closeout-report" class="closeout-report" hidden aria-live="polite">
-    <div class="closeout-total"><span>TODAY'S TOTAL</span><strong id="closeout-total">RM 0.00</strong><small id="closeout-orders">0 PAID TICKETS</small></div>
-    <div><span>CASH COLLECTED</span><strong id="cash-total">RM 0.00</strong></div>
-    <div><span>QR COLLECTED</span><strong id="qr-total">RM 0.00</strong></div>
-  </section>
-  <section class="history-panel" aria-labelledby="history-heading">
-    <div class="panel-title"><small>PERMANENT RECORD</small><h2 id="history-heading">SALES CLOSEOUT HISTORY</h2></div>
-    <div class="table-wrap"><table><thead><tr><th>DATE</th><th>CLOSED</th><th>TICKETS</th><th>CASH</th><th>QR</th><th>TOTAL</th></tr></thead><tbody id="closeout-history"><tr><td colspan="6" class="muted">Loading history…</td></tr></tbody></table></div>
-  </section>
-
-  <section class="command-grid">
-    <article class="panel sales-panel">
-      <div class="panel-title"><small>TODAY'S HOT LIST</small><h2>TOP SELLERS</h2></div>
-      <ol id="best-sellers" class="leaderboard"><li class="muted">Loading sales data…</li></ol>
-    </article>
-    <article class="panel recent-panel">
-      <div class="panel-title"><small>LIVE FEED</small><h2>RECENT ORDERS</h2></div>
-      <div class="table-wrap"><table><thead><tr><th>TICKET</th><th>TIME</th><th>PAYMENT</th><th>TOTAL</th></tr></thead><tbody id="recent-orders"><tr><td colspan="4" class="muted">Loading orders…</td></tr></tbody></table></div>
-    </article>
-    <article class="panel menu-panel">
-      <div class="panel-title"><small>MENU CONTROL</small><h2>PRODUCT SWITCHBOARD</h2></div>
-      <form id="product-form" class="add-product">
-        <input name="name" required placeholder="PRODUCT NAME" aria-label="Product name" />
-        <input name="category" required placeholder="CATEGORY" aria-label="Category" />
-        <input name="price" required type="number" min="0" step="0.01" placeholder="PRICE (RM)" aria-label="Price in RM" />
-        <button type="submit">+ ADD ITEM</button>
-      </form>
-      <ul id="product-list" class="product-list"><li class="muted">Loading menu…</li></ul>
-    </article>
-    <aside class="stock-alert"><strong>!</strong><div><b>MENU STATUS</b><p>Toggle an item OFF to take it out of the POS instantly—without losing its sales history.</p></div></aside>
-  </section>
-</main>
+    <main class="admin-shell">
+      <div class="scanlines" aria-hidden="true"></div>
+      <header class="admin-header"><a href="/" class="brand">SPUD<br /><span>STATION</span></a><div><small>MISSION CONTROL</small><h1>STALL COMMAND</h1></div><a href="/" class="back-link">← CASHIER POS</a></header>
+      <p id="notice" class="sync-status">CONNECTING TO SUPABASE…</p>
+      <section class="admin-actions" aria-label="Admin options">
+        <a class="sales-link" href="/admin/sales"><small>REPORTING & CLOSEOUT</small><strong>SALES DATA →</strong><span>Revenue · Cash · QR · History</span></a>
+        <aside class="stock-alert"><strong>!</strong><div><b>MENU STATUS</b><p>Toggle an item OFF to remove it from the POS instantly—without losing its sales history.</p></div></aside>
+      </section>
+      <section class="admin-sales-grid" aria-label="Live sales review">
+        <article class="panel"><div class="panel-title"><small>CURRENT PERIOD</small><h2>TOP SELLERS</h2></div><ol id="best-sellers" class="leaderboard"><li class="muted">Loading sales data…</li></ol></article>
+        <article class="panel"><div class="panel-title"><small>CHECK BEFORE CLOSEOUT</small><h2>RECENT ORDERS</h2></div><p class="review-note">Raise a flag on a mistaken ticket. Flagged tickets stay visible but are excluded from live sales and closeout totals.</p><div class="table-wrap"><table><thead><tr><th>TICKET</th><th>TIME</th><th>PAYMENT</th><th>TOTAL</th><th>REVIEW</th></tr></thead><tbody id="recent-orders"><tr><td colspan="5" class="muted">Loading orders…</td></tr></tbody></table></div></article>
+      </section>
+      <section class="menu-panel" aria-labelledby="menu-heading">
+        <div class="panel-title"><small>MENU CONTROL</small><h2 id="menu-heading">PRODUCT SWITCHBOARD</h2></div>
+        <form id="product-form" class="add-product"><input name="name" required placeholder="PRODUCT NAME" aria-label="Product name" /><input name="category" required placeholder="CATEGORY" aria-label="Category" /><input name="price" required type="number" min="0" step="0.01" placeholder="PRICE (RM)" aria-label="Price in RM" /><button type="submit">+ ADD ITEM</button></form>
+        <ul id="product-list" class="product-list"><li class="muted">Loading menu…</li></ul>
+      </section>
+    </main>
+    <script>
+      import { DatabaseService } from '../lib/DatabaseService.js';
+      import { AdminController } from '../lib/AdminController.js';
+      if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js'));
+      const url = import.meta.env.PUBLIC_SUPABASE_URL; const anonKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
+      const notice = document.querySelector('#notice');
+      if (!url || !anonKey) { notice.textContent = 'ADD SUPABASE KEYS TO .ENV TO START'; notice.classList.add('is-error'); }
+      else new AdminController({ database: new DatabaseService(url, anonKey), formatCurrency: (amount) => new Intl.NumberFormat('en-MY', { style: 'currency', currency: 'MYR' }).format(amount), elements: { notice, form: document.querySelector('#product-form'), productList: document.querySelector('#product-list'), bestSellers: document.querySelector('#best-sellers'), recentOrders: document.querySelector('#recent-orders') } }).initialise();
+    </script>
   </body>
 </html>
 
-<script>
-  import { DatabaseService } from '../lib/DatabaseService.js';
-  import { AdminController } from '../lib/AdminController.js';
-
-  const money = new Intl.NumberFormat('en-MY', { style: 'currency', currency: 'MYR' });
-  const url = import.meta.env.PUBLIC_SUPABASE_URL;
-  const anonKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
-  if (!url || !anonKey) {
-    document.querySelector('#notice').textContent = 'ADD SUPABASE KEYS TO .ENV TO START';
-    document.querySelector('#notice').classList.add('is-error');
-  } else {
-    new AdminController({
-      database: new DatabaseService(url, anonKey),
-      formatCurrency: (amount) => money.format(amount),
-      elements: {
-        notice: document.querySelector('#notice'), revenue: document.querySelector('#daily-revenue'), orderCount: document.querySelector('#order-count'), average: document.querySelector('#average-ticket'), bestSellers: document.querySelector('#best-sellers'), recentOrders: document.querySelector('#recent-orders'), form: document.querySelector('#product-form'), productList: document.querySelector('#product-list'), closeout: document.querySelector('#run-closeout'), closeoutReport: document.querySelector('#closeout-report'), closeoutTotal: document.querySelector('#closeout-total'), cashTotal: document.querySelector('#cash-total'), qrTotal: document.querySelector('#qr-total'), closeoutOrders: document.querySelector('#closeout-orders'), closeoutHistory: document.querySelector('#closeout-history'),
-      },
-    }).initialise();
-  }
-</script>
-
 <style is:global>
   @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Space+Mono:wght@400;700&display=swap');
-  :root { --potato:#8B5A2B; --cheddar:#FDB813; --cream:#F5F5F5; --ink:#000; --alert:#E24B2B; } * { box-sizing:border-box; } body { margin:0; background:var(--potato); color:var(--ink); font-family:'Space Mono',monospace; } .admin-shell { min-height:100vh; padding:18px; position:relative; } .scanlines { pointer-events:none; position:fixed; inset:0; z-index:10; opacity:.12; background:repeating-linear-gradient(0deg,transparent 0 2px,#000 2px 3px); } .admin-header,.kpis,.command-grid,.sync-status { position:relative; z-index:1; } .admin-header { display:grid; grid-template-columns:1fr 2fr auto; gap:18px; align-items:center; padding:14px 18px; border:4px solid var(--ink); background:var(--cheddar); box-shadow:6px 6px 0 var(--ink); } .brand,h1,h2 { font-family:'Press Start 2P',monospace; } .brand { color:var(--ink); text-decoration:none; font-size:16px; line-height:1.05; } .brand span { color:var(--cream); text-shadow:2px 2px var(--ink); } h1,h2 { margin:4px 0 0; line-height:1.45; } h1 { font-size:clamp(17px,2vw,26px); } h2 { font-size:14px; } .back-link { color:var(--ink); font-size:12px; font-weight:700; } .admin-header small,.panel-title small { font-weight:700; letter-spacing:.08em; } .sync-status { display:inline-block; margin:20px 0 12px; padding:6px 9px; background:var(--ink); color:var(--cheddar); font-size:11px; font-weight:700; } .sync-status.is-error { background:var(--alert); color:var(--cream); } .kpis { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; } .kpis article,.panel { border:4px solid var(--ink); box-shadow:5px 5px 0 var(--ink); } .kpis article { background:var(--cream); padding:16px; } .kpis article:nth-child(2) { background:var(--cheddar); } .kpis span { display:block; font-weight:700; font-size:11px; } .kpis strong { display:block; margin-top:14px; font-family:'Press Start 2P',monospace; font-size:clamp(16px,2vw,23px); line-height:1.3; } .command-grid { display:grid; grid-template-columns:1fr 1.5fr; gap:16px; margin-top:16px; } .panel { background:var(--cream); padding:18px; } .panel-title { border-bottom:3px solid var(--ink); padding-bottom:11px; } .panel-title small { color:var(--potato); } .leaderboard,.product-list { margin:0; padding:0; list-style:none; } .leaderboard li { display:grid; grid-template-columns:auto 1fr auto; gap:14px; align-items:center; border-bottom:3px solid var(--ink); padding:15px 0; font-weight:700; } .leaderboard b { padding:7px; background:var(--cheddar); border:2px solid var(--ink); } .leaderboard strong { font-size:12px; } .table-wrap { overflow:auto; } table { border-collapse:collapse; width:100%; font-size:12px; } th,td { text-align:left; border-bottom:2px solid var(--ink); padding:13px 8px; } th { background:var(--ink); color:var(--cream); white-space:nowrap; } .menu-panel { grid-column:1 / -1; } .add-product { display:grid; grid-template-columns:2fr 1.25fr 1fr auto; gap:9px; margin:16px 0; } input,button { border-radius:0; font:inherit; } input { min-width:0; border:3px solid var(--ink); background:#fff; padding:11px; font-size:12px; font-weight:700; } button { border:3px solid var(--ink); background:var(--cheddar); padding:10px 14px; box-shadow:3px 3px 0 var(--ink); font-size:12px; font-weight:700; cursor:pointer; } button:active { transform:translate(3px,3px); box-shadow:none; } .product-list { display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:8px; } .product-list li { display:flex; align-items:center; justify-content:space-between; gap:12px; background:var(--ink); color:var(--cream); padding:10px; } .product-list small { display:block; color:var(--cheddar); margin-top:4px; font-size:11px; } .pixel-toggle { cursor:pointer; display:flex; align-items:center; gap:5px; font-size:11px; font-weight:700; } .pixel-toggle input { appearance:none; width:16px; height:16px; padding:0; background:var(--alert); border:2px solid var(--cream); } .pixel-toggle input:checked { background:#78B950; } .stock-alert { display:flex; grid-column:1 / -1; gap:14px; align-items:center; border:4px solid var(--ink); background:var(--alert); box-shadow:5px 5px 0 var(--ink); padding:14px; } .stock-alert strong { display:grid; place-items:center; width:40px; height:40px; flex:none; border:3px solid var(--ink); background:var(--cheddar); font-family:'Press Start 2P',monospace; } .stock-alert p { margin:4px 0 0; font-size:12px; font-weight:700; } .muted { color:#666; font-size:12px; padding:12px 0; } @media(max-width:760px){.admin-shell{padding:10px}.admin-header{grid-template-columns:1fr auto}.admin-header>div{grid-column:1/-1;grid-row:2}.kpis,.command-grid{grid-template-columns:1fr}.add-product{grid-template-columns:1fr}.menu-panel,.stock-alert{grid-column:auto}.back-link{font-size:10px}}
-  .closeout-bar { position:relative; z-index:1; display:flex; align-items:center; justify-content:space-between; gap:16px; margin-top:16px; border:4px solid var(--ink); background:var(--ink); color:var(--cream); padding:14px 18px; box-shadow:5px 5px 0 var(--ink); } .closeout-bar small { color:var(--cheddar); font-size:11px; font-weight:700; } .closeout-bar button { background:var(--cheddar); } .closeout-report { position:relative; z-index:1; display:grid; grid-template-columns:1.5fr 1fr 1fr; margin-top:16px; border:4px solid var(--ink); box-shadow:5px 5px 0 var(--ink); background:var(--cream); } .closeout-report div { padding:15px; border-right:3px solid var(--ink); } .closeout-report div:last-child { border-right:0; } .closeout-report span,.closeout-report small { display:block; font-size:11px; font-weight:700; } .closeout-report strong { display:block; margin-top:9px; color:var(--potato); font-family:'Press Start 2P',monospace; font-size:16px; line-height:1.5; } .closeout-report .closeout-total { background:var(--cheddar); } .closeout-report .closeout-total strong { color:var(--ink); } .closeout-report small { margin-top:7px; } @media(max-width:760px){.closeout-bar{align-items:stretch;flex-direction:column}.closeout-report{grid-template-columns:1fr}.closeout-report div{border-right:0;border-bottom:3px solid var(--ink)}.closeout-report div:last-child{border-bottom:0}}
-  .history-panel { position:relative; z-index:1; margin-top:16px; border:4px solid var(--ink); background:var(--cream); box-shadow:5px 5px 0 var(--ink); padding:18px; }
-  /* Keep the retro CRT treatment subtle enough that it never compromises legibility. */
-  .scanlines { opacity:.045; background:linear-gradient(to bottom,transparent 0 3px,rgba(0,0,0,.85) 3px 4px); background-size:100% 4px; }
+  :root{--potato:#8B5A2B;--cheddar:#FDB813;--cream:#F5F5F5;--ink:#000;--alert:#E24B2B}*{box-sizing:border-box}body{margin:0;background:var(--potato);color:var(--ink);font-family:'Space Mono',monospace}.admin-shell{min-height:100vh;padding:18px;position:relative}.scanlines{pointer-events:none;position:fixed;inset:0;z-index:10;opacity:.045;background:linear-gradient(to bottom,transparent 0 3px,rgba(0,0,0,.85) 3px 4px);background-size:100% 4px}.admin-header,.sync-status,.admin-actions,.admin-sales-grid,.menu-panel{position:relative;z-index:1}.admin-header{display:grid;grid-template-columns:1fr 2fr auto;gap:18px;align-items:center;padding:14px 18px;border:4px solid var(--ink);background:var(--cheddar);box-shadow:6px 6px 0 var(--ink)}.brand,h1,h2,.sales-link strong{font-family:'Press Start 2P',monospace}.brand{color:var(--ink);text-decoration:none;font-size:16px;line-height:1.05}.brand span{color:var(--cream);text-shadow:2px 2px var(--ink)}h1,h2{margin:4px 0 0;line-height:1.45}h1{font-size:clamp(17px,2vw,26px)}h2{font-size:14px}.back-link{color:var(--ink);font-size:12px;font-weight:700}.admin-header small,.panel-title small{font-weight:700;letter-spacing:.08em}.sync-status{display:inline-block;margin:20px 0 12px;padding:6px 9px;background:var(--ink);color:var(--cheddar);font-size:11px;font-weight:700}.sync-status.is-error{background:var(--alert);color:var(--cream)}.admin-actions,.admin-sales-grid{display:grid;grid-template-columns:1fr 1.6fr;gap:16px}.sales-link,.menu-panel,.stock-alert,.panel{border:4px solid var(--ink);box-shadow:5px 5px 0 var(--ink)}.sales-link{display:block;background:var(--cheddar);color:var(--ink);padding:18px;text-decoration:none}.sales-link small,.sales-link span{display:block;font-weight:700;font-size:11px}.sales-link strong{display:block;margin:11px 0;font-size:17px}.sales-link:hover{background:#ffcf36;transform:translate(-2px,-2px);box-shadow:7px 7px 0 var(--ink)}.stock-alert{display:flex;gap:14px;align-items:center;background:var(--alert);padding:14px}.stock-alert strong{display:grid;place-items:center;width:40px;height:40px;flex:none;border:3px solid var(--ink);background:var(--cheddar);font-family:'Press Start 2P',monospace}.stock-alert p{margin:4px 0 0;font-size:12px;font-weight:700}.admin-sales-grid{margin-top:18px}.panel,.menu-panel{background:var(--cream);padding:18px}.menu-panel{margin-top:18px}.panel-title{border-bottom:3px solid var(--ink);padding-bottom:11px}.panel-title small{color:var(--potato)}.review-note{margin:12px 0;font-size:11px;font-weight:700;line-height:1.5;color:var(--potato)}.table-wrap{overflow:auto}table{border-collapse:collapse;width:100%;font-size:12px}th,td{text-align:left;border-bottom:2px solid var(--ink);padding:11px 8px}th{background:var(--ink);color:var(--cream);white-space:nowrap}.is-flagged{background:#ffd7ce;text-decoration:line-through}.flag-button{white-space:nowrap;background:var(--alert);color:var(--cream);font-size:10px;padding:7px}.is-flagged .flag-button{background:var(--cheddar);color:var(--ink)}.leaderboard,.product-list{margin:0;padding:0;list-style:none}.leaderboard li{display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;border-bottom:3px solid var(--ink);padding:15px 0;font-weight:700}.leaderboard b{padding:7px;background:var(--cheddar);border:2px solid var(--ink)}.leaderboard strong{font-size:12px}.add-product{display:grid;grid-template-columns:2fr 1.25fr 1fr auto;gap:9px;margin:16px 0}input,button{border-radius:0;font:inherit}input{min-width:0;border:3px solid var(--ink);background:#fff;padding:11px;font-size:12px;font-weight:700}button{border:3px solid var(--ink);background:var(--cheddar);padding:10px 14px;box-shadow:3px 3px 0 var(--ink);font-size:12px;font-weight:700;cursor:pointer}button:active{transform:translate(3px,3px);box-shadow:none}.product-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:8px}.product-list li{display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--ink);color:var(--cream);padding:10px}.product-list small{display:block;color:var(--cheddar);margin-top:4px;font-size:11px}.pixel-toggle{cursor:pointer;display:flex;align-items:center;gap:5px;font-size:11px;font-weight:700}.pixel-toggle input{appearance:none;width:16px;height:16px;padding:0;background:var(--alert);border:2px solid var(--cream)}.pixel-toggle input:checked{background:#78B950}.muted{color:#666;font-size:12px;padding:12px 0}@media(max-width:760px){.admin-shell{padding:10px}.admin-header{grid-template-columns:1fr auto}.admin-header>div{grid-column:1/-1;grid-row:2}.admin-actions,.admin-sales-grid,.add-product{grid-template-columns:1fr}.back-link{font-size:10px}}
+  .flag-button { background:var(--alert); color:var(--cream); padding:7px; font-size:10px; } .is-flagged .flag-button { background:var(--cheddar); color:var(--ink); }
 </style>

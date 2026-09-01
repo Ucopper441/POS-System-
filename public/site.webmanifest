@@ -1,0 +1,13 @@
+{
+  "name": "Spud Station POS",
+  "short_name": "Spud POS",
+  "description": "Point of sale and sales dashboard for Spud Station.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#8B5A2B",
+  "theme_color": "#FDB813",
+  "icons": [
+    { "src": "/spud-icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
