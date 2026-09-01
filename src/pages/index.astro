@@ -5,6 +5,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Spud Station · Cashier POS</title>
+    <meta name="theme-color" content="#FDB813" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="icon" href="/spud-icon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/spud-icon.svg" />
   </head>
   <body>
 <main class="pos-shell" aria-label="Spud Station point of sale">
@@ -55,6 +59,7 @@
   import { DatabaseService } from '../lib/DatabaseService.js';
 
   const money = new Intl.NumberFormat('en-MY', { style: 'currency', currency: 'MYR' });
+  if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js'));
   const url = import.meta.env.PUBLIC_SUPABASE_URL;
   const anonKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
   new POSController({

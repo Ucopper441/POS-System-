@@ -1,44 +1,33 @@
-/** Owns dashboard rendering and menu maintenance interactions. */
+/** Owns Admin menu-management interactions. */
 export class AdminController {
   #database;
   #elements;
   #money;
 
-  constructor({ database, elements, formatCurrency }) {
-    this.#database = database;
-    this.#elements = elements;
-    this.#money = formatCurrency;
-  }
+  constructor({ database, elements, formatCurrency }) { this.#database = database; this.#elements = elements; this.#money = formatCurrency; }
 
   async initialise() {
     this.#elements.form.addEventListener('submit', (event) => this.#saveProduct(event));
     this.#elements.productList.addEventListener('change', (event) => this.#toggleAvailability(event));
-    this.#elements.closeout.addEventListener('click', () => this.#runCloseout());
+    this.#elements.recentOrders.addEventListener('click', (event) => this.#toggleOrderFlag(event));
     await this.refresh();
   }
 
   async refresh() {
     try {
-      const [dashboard, products, closeouts] = await Promise.all([this.#database.getSalesDashboard(), this.#database.getProducts(), this.#database.getCloseoutHistory()]);
-      this.#renderDashboard(dashboard);
+      const [products, dashboard] = await Promise.all([this.#database.getProducts(), this.#database.getSalesDashboard()]);
       this.#renderProducts(products);
-      this.#renderCloseoutHistory(closeouts);
-      this.#elements.notice.textContent = 'LIVE DATA · SYNCED';
-    } catch (error) {
-      this.#elements.notice.textContent = 'SUPABASE CONNECTION REQUIRED';
-      this.#elements.notice.classList.add('is-error');
-      console.error(error);
+      this.#renderSalesSnapshot(dashboard);
+      this.#elements.notice.textContent = 'MENU & LIVE ORDERS · SYNCED';
     }
+    catch (error) { this.#elements.notice.textContent = 'SUPABASE CONNECTION REQUIRED'; this.#elements.notice.classList.add('is-error'); console.error(error); }
   }
 
   async #saveProduct(event) {
     event.preventDefault();
     const form = new FormData(this.#elements.form);
-    try {
-      await this.#database.saveProduct({ name: form.get('name'), category: form.get('category'), price: form.get('price'), is_available: true });
-      this.#elements.form.reset();
-      await this.refresh();
-    } catch (error) { this.#elements.notice.textContent = error.message; }
+    try { await this.#database.saveProduct({ name: form.get('name'), category: form.get('category'), price: form.get('price'), is_available: true }); this.#elements.form.reset(); await this.refresh(); }
+    catch (error) { this.#elements.notice.textContent = error.message; }
   }
 
   async #toggleAvailability(event) {
@@ -48,40 +37,21 @@ export class AdminController {
     catch (error) { this.#elements.notice.textContent = error.message; }
   }
 
-  async #runCloseout() {
-    this.#elements.closeout.disabled = true;
-    this.#elements.closeout.textContent = 'COUNTING…';
-    try {
-      const closeout = await this.#database.closeCurrentSalesPeriod();
-      this.#elements.notice.textContent = 'CLOSEOUT SAVED · LIVE SALES RESET';
-      await this.refresh();
-      this.#elements.closeoutTotal.textContent = this.#money(closeout.total_sales);
-      this.#elements.cashTotal.textContent = this.#money(closeout.cash_collected);
-      this.#elements.qrTotal.textContent = this.#money(closeout.qr_collected);
-      this.#elements.closeoutOrders.textContent = `${closeout.order_count} PAID TICKETS`;
-      this.#elements.closeoutReport.hidden = false;
-    } catch (error) { this.#elements.notice.textContent = error.message; }
-    finally { this.#elements.closeout.disabled = false; this.#elements.closeout.textContent = 'RUN DAILY CLOSEOUT'; }
-  }
-
-  #renderDashboard({ revenue, orderCount, cashRevenue, qrRevenue, topSellers, recentOrders }) {
-    this.#elements.revenue.textContent = this.#money(revenue);
-    this.#elements.orderCount.textContent = String(orderCount);
-    this.#elements.average.textContent = this.#money(orderCount ? revenue / orderCount : 0);
-    this.#elements.closeoutTotal.textContent = this.#money(revenue);
-    this.#elements.cashTotal.textContent = this.#money(cashRevenue);
-    this.#elements.qrTotal.textContent = this.#money(qrRevenue);
-    this.#elements.closeoutOrders.textContent = `${orderCount} PAID TICKETS`;
-    this.#elements.bestSellers.innerHTML = topSellers.length ? topSellers.map((item, index) => `<li><b>0${index + 1}</b><span>${this.#escape(item.name)}</span><strong>${item.quantity} SOLD</strong></li>`).join('') : '<li class="muted">No completed orders today.</li>';
-    this.#elements.recentOrders.innerHTML = recentOrders.length ? recentOrders.map((order) => `<tr><td>#${order.id.slice(0, 6).toUpperCase()}</td><td>${new Date(order.created_at).toLocaleTimeString('en-MY', { hour: '2-digit', minute: '2-digit' })}</td><td>${this.#escape(order.payment_method)}</td><td>${this.#money(order.total_amount)}</td></tr>`).join('') : '<tr><td colspan="4" class="muted">No orders yet.</td></tr>';
+  async #toggleOrderFlag(event) {
+    const button = event.target.closest('[data-flag-order]');
+    if (!button) return;
+    button.disabled = true;
+    try { await this.#database.setOrderFlag(button.dataset.flagOrder, button.dataset.flagged !== 'true'); await this.refresh(); }
+    catch (error) { this.#elements.notice.textContent = error.message; button.disabled = false; }
   }
 
   #renderProducts(products) {
     this.#elements.productList.innerHTML = products.length ? products.map((product) => `<li><div><strong>${this.#escape(product.name)}</strong><small>${this.#escape(product.category)} · ${this.#money(product.price)}</small></div><label class="pixel-toggle"><input data-availability="${product.id}" type="checkbox" ${product.is_available ? 'checked' : ''}><span>${product.is_available ? 'ON' : 'OFF'}</span></label></li>`).join('') : '<li class="muted">No products yet. Add your first menu item.</li>';
   }
 
-  #renderCloseoutHistory(closeouts) {
-    this.#elements.closeoutHistory.innerHTML = closeouts.length ? closeouts.map((closeout) => `<tr><td>${new Date(closeout.closed_at).toLocaleDateString('en-MY', { day: '2-digit', month: 'short', year: 'numeric' })}</td><td>${new Date(closeout.closed_at).toLocaleTimeString('en-MY', { hour: '2-digit', minute: '2-digit' })}</td><td>${closeout.order_count}</td><td>${this.#money(closeout.cash_collected)}</td><td>${this.#money(closeout.qr_collected)}</td><td>${this.#money(closeout.total_sales)}</td></tr>`).join('') : '<tr><td colspan="6" class="muted">No sales periods closed yet.</td></tr>';
+  #renderSalesSnapshot({ topSellers, recentOrders }) {
+    this.#elements.bestSellers.innerHTML = topSellers.length ? topSellers.map((item, index) => `<li><b>0${index + 1}</b><span>${this.#escape(item.name)}</span><strong>${item.quantity} SOLD</strong></li>`).join('') : '<li class="muted">No valid sales in this period.</li>';
+    this.#elements.recentOrders.innerHTML = recentOrders.length ? recentOrders.map((order) => `<tr class="${order.is_flagged ? 'is-flagged' : ''}"><td>#${order.id.slice(0, 6).toUpperCase()}</td><td>${new Date(order.created_at).toLocaleTimeString('en-MY', { hour: '2-digit', minute: '2-digit' })}</td><td>${this.#escape(order.payment_method)}</td><td>${this.#money(order.total_amount)}</td><td><button class="flag-button" data-flag-order="${order.id}" data-flagged="${order.is_flagged}">${order.is_flagged ? 'RESTORE' : 'RAISE FLAG'}</button></td></tr>`).join('') : '<tr><td colspan="5" class="muted">No orders in this sales period.</td></tr>';
   }
 
   #escape(value) { return String(value).replace(/[&<>"']/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[character])); }
